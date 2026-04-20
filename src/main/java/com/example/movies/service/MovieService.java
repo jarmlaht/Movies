@@ -13,4 +13,6 @@ public interface MovieService {
     Movie save(Movie movie);
 
     void deleteById(String id);
+
+    List<Movie> searchByName(String query);
 }

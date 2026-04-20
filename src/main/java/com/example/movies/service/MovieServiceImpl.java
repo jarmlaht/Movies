@@ -33,4 +33,9 @@ public class MovieServiceImpl implements MovieService {
     public void deleteById(String id) {
         movieRepository.deleteById(id);
     }
+
+    @Override
+    public List<Movie> searchByName(String query) {
+        return movieRepository.findByNameContainingIgnoreCase(query);
+    }
 }

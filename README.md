@@ -5,7 +5,7 @@
 Run command:
 `docker-compose up --build`
 
-This command starts the MoviesApplication and runs it in a Docker container. It also runs the MongoDB database container.
+This command starts the MoviesApplication and runs it in a Docker container. It also starts the MongoDB database and saves the movie data from the `resources/movies-compact.json` file to the database.
 
 ## REST endpoints
 

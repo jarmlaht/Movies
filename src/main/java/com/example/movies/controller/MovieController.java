@@ -2,6 +2,7 @@ package com.example.movies.controller;
 
 import com.example.movies.model.Movie;
 import com.example.movies.service.MovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,12 @@ public class MovieController {
     }
 
     @PostMapping
-    public Movie save(@RequestBody Movie movie) {
+    public Movie save(@Valid @RequestBody Movie movie) {
         return movieService.save(movie);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Movie> update(@PathVariable String id, @RequestBody Movie movie) {
+    public ResponseEntity<Movie> update(@Valid @PathVariable String id, @RequestBody Movie movie) {
         return movieService.findById(id)
                 .map(existingMovie -> {
                     movie.setId(id);

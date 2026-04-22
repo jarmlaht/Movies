@@ -7,6 +7,10 @@ Run command:
 
 This command starts the MoviesApplication and runs it in a Docker container. It also starts the MongoDB database and saves the movie data from the `resources/movies-compact.json` file to the database.
 
+You can also start only the MongoDB database with the command:
+`docker-compose up mongodb` and run the application from the command line with the command:
+`mvn spring-boot:run`
+
 ## REST endpoints
 
 Base path: `/movies`

@@ -1,5 +1,7 @@
 package com.example.movies.controller;
 
+import com.example.movies.model.Actor;
+import com.example.movies.model.Director;
 import com.example.movies.model.Movie;
 import com.example.movies.service.MovieService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +38,7 @@ class MovieControllerTest {
             new Movie("2", "Inception", 2010, List.of("Action", "Sci-Fi"), 16, 9, null, null, "Dreams within dreams.")
     );
 
-    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9, null, null, "Hope never dies.");
+    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9, List.of(new Actor("jaska","näyttelijä")), new Director("jaska","ohjaaja"), "Hope never dies.");
 
 
     @Test

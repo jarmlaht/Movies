@@ -25,7 +25,7 @@ public class MovieDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (movieRepository.count() > 0) {
-            log.info("Movies already loaded to the database!");
+            log.debug("Database already populated: {}", movieRepository.count());
             return;
         }
 

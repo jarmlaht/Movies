@@ -1,5 +1,6 @@
 package com.example.movies.controller;
 
+import com.example.movies.config.SecurityConfig;
 import com.example.movies.dto.DirectorSummaryDTO;
 import com.example.movies.dto.MovieSummaryDTO;
 import com.example.movies.model.Actor;
@@ -10,6 +11,8 @@ import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,11 +22,13 @@ import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MovieController.class)
+@Import(SecurityConfig.class)
 class MovieControllerTest {
 
     @Autowired
@@ -36,13 +41,13 @@ class MovieControllerTest {
     private MovieService movieService;
 
     static List<Movie> MOVIES = List.of(
-            new Movie("1", "The Matrix", 1999, List.of("Action", "Sci-Fi"), 16, 9,
+            new Movie("1", "The Matrix", 1999, List.of("Action", "Sci-Fi"), 16, 9, 
                     List.of(new Actor("Keanu", "Reeves")), new Director("Lana", "Wachowski"), "A hacker discovers reality."),
-            new Movie("2", "Inception", 2010, List.of("Action", "Sci-Fi"), 16, 9,
+            new Movie("2", "Inception", 2010, List.of("Action", "Sci-Fi"), 16, 9, 
                     List.of(new Actor("Leonardo", "DiCaprio")), new Director("Christopher", "Nolan"), "Dreams within dreams.")
     );
 
-    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9,
+    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9, 
             List.of(new Actor("Tim", "Robbins")), new Director("Frank", "Darabont"), "Hope never dies.");
 
     static List<MovieSummaryDTO> SUMMARIES = List.of(
@@ -52,6 +57,7 @@ class MovieControllerTest {
 
 
     @Test
+    @WithMockUser
     void shouldReturnAllMovies() throws Exception {
         when(movieService.findAll()).thenReturn(MOVIES);
 
@@ -66,6 +72,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldReturnAllSummaries() throws Exception {
         when(movieService.findAllSummaries()).thenReturn(SUMMARIES);
 
@@ -82,6 +89,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldSearchMoviesByQuery() throws Exception {
         when(movieService.searchByName("matrix")).thenReturn(Collections.singletonList(MOVIES.get(0)));
 
@@ -95,10 +103,12 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldSaveNewMovieToDb() throws Exception {
         when(movieService.save(MOVIE)).thenReturn(MOVIE);
 
         mockMvc.perform(post("/movies")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(MOVIE)))
                 .andExpect(status().isOk())

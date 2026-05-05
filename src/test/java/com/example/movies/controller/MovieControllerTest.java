@@ -36,13 +36,13 @@ class MovieControllerTest {
     private MovieService movieService;
 
     static List<Movie> MOVIES = List.of(
-            new Movie("1", "The Matrix", 1999, List.of("Action", "Sci-Fi"), 16, 9, 
+            new Movie("1", "The Matrix", 1999, List.of("Action", "Sci-Fi"), 16, 9,
                     List.of(new Actor("Keanu", "Reeves")), new Director("Lana", "Wachowski"), "A hacker discovers reality."),
-            new Movie("2", "Inception", 2010, List.of("Action", "Sci-Fi"), 16, 9, 
+            new Movie("2", "Inception", 2010, List.of("Action", "Sci-Fi"), 16, 9,
                     List.of(new Actor("Leonardo", "DiCaprio")), new Director("Christopher", "Nolan"), "Dreams within dreams.")
     );
 
-    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9, 
+    static Movie MOVIE = new Movie("3", "The Shawshank Redemption", 1994, List.of("Drama"), 18, 9,
             List.of(new Actor("Tim", "Robbins")), new Director("Frank", "Darabont"), "Hope never dies.");
 
     static List<MovieSummaryDTO> SUMMARIES = List.of(

@@ -15,7 +15,9 @@ You can also start only the MongoDB database with the command:
 
 Base path: `/movies`
 
+- `GET /` — home page (Thymeleaf view)
 - `GET /movies` — get all movies
+- `GET /movies/summaries` — get all movie summaries (DTOs)
 - `GET /movies/{id}` — get a movie by id
 - `POST /movies` — create a new movie
 - `PUT /movies/{id}` — update an existing movie

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Collection</title>
+    <style>
+        :root {
+            --page-background-color: #f4f4f9;
+            --card-background-color: #ffffff;
+            --primary-text-color: #333333;
+            --secondary-text-color: #555555;
+            --muted-text-color: #666666;
+            --accent-color: #007bff;
+            --card-shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: var(--page-background-color);
+        }
+
+        h1 {
+            color: var(--primary-text-color);
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background: var(--card-background-color);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--card-shadow-color);
+        }
+
+        .movie-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 0 5px;
+            color: var(--accent-color);
+        }
+
+        .movie-director {
+            font-style: italic;
+            color: var(--secondary-text-color);
+            margin: 0 0 10px;
+        }
+
+        .movie-synopsis {
+            color: var(--muted-text-color);
+            line-height: 1.4;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Movie Collection</h1>
+
+    <section class="movie-grid" aria-label="Movies">
+        <article
+                th:each="movie : ${movies}"
+                th:with="directorFullName=${movie.director.firstName + ' ' + movie.director.lastName}"
+                class="movie-card"
+        >
+            <h2 th:text="${movie.name}" class="movie-title">Movie Name</h2>
+
+            <p class="movie-director">
+                Directed by: <span th:text="${directorFullName}">Director Name</span>
+            </p>
+
+            <p th:text="${movie.synopsis}" class="movie-synopsis">Synopsis</p>
+        </article>
+    </section>
+</main>
+</body>
+</html>

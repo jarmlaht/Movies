@@ -2,6 +2,7 @@ package com.example.movies;
 
 import com.example.movies.model.Movie;
 import com.example.movies.repository.MovieRepository;
+import org.jspecify.annotations.NonNull;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class MovieDataLoader implements CommandLineRunner {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void run(String... args) {
+    public void run(String @NonNull ... args) {
         if (movieRepository.count() > 0) {
             log.debug("Database already populated: {}", movieRepository.count());
             return;

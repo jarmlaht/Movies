@@ -1,5 +1,6 @@
 package com.example.movies.controller;
 
+import com.example.movies.dto.MovieSummaryDTO;
 import com.example.movies.model.Movie;
 import com.example.movies.service.MovieService;
 import jakarta.validation.Valid;
@@ -18,6 +19,11 @@ public class MovieController {
     @GetMapping
     public List<Movie> findAll() {
         return movieService.findAll();
+    }
+
+    @GetMapping("/summaries")
+    public List<MovieSummaryDTO> findAllSummaries() {
+        return movieService.findAllSummaries();
     }
 
     @GetMapping("/{id}")

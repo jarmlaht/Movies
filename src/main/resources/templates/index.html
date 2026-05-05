@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Movie Collection</title>
+    <!-- CSRF Meta Tags -->
+    <meta name="_csrf" data-th-content="${_csrf.token}"/>
+    <meta name="_csrf_header" data-th-content="${_csrf.headerName}"/>
     <style>
         :root {
             --page-background-color: #f4f4f9;
@@ -12,6 +15,7 @@
             --muted-text-color: #666666;
             --accent-color: #007bff;
             --card-shadow-color: rgba(0, 0, 0, 0.1);
+            --modal-bg: rgba(0, 0, 0, 0.5);
         }
 
         body {
@@ -20,8 +24,41 @@
             background-color: var(--page-background-color);
         }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         h1 {
             color: var(--primary-text-color);
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
         }
 
         .movie-grid {
@@ -55,27 +92,173 @@
             line-height: 1.4;
             margin: 0;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
-<main>
+<header>
     <h1>Movie Collection</h1>
+    <div class="user-info">
+        <div sec:authorize="isAuthenticated()">
+            Logged in as: <span sec:authentication="name" style="font-weight: bold;">User</span>
+            <form data-th-action="@{/logout}" method="post" style="display: inline; margin-left: 10px;">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
+        </div>
+        <div sec:authorize="isAnonymous()">
+            <button class="btn btn-primary" onclick="openLoginModal()">Login</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div data-th-if="${param.error}" class="error-message" style="text-align: center;">
+        Invalid username or password.
+    </div>
 
     <section class="movie-grid" aria-label="Movies">
         <article
-                th:each="movie : ${movies}"
-                th:with="directorFullName=${movie.director.firstName + ' ' + movie.director.lastName}"
+                data-th-each="movie : ${movies}"
+                data-th-with="directorFullName=${movie.director.firstName + ' ' + movie.director.lastName}"
                 class="movie-card"
         >
-            <h2 th:text="${movie.name}" class="movie-title">Movie Name</h2>
+            <h2 data-th-text="${movie.name}" class="movie-title">Movie Name</h2>
 
             <p class="movie-director">
-                Directed by: <span th:text="${directorFullName}">Director Name</span>
+                Directed by: <span data-th-text="${directorFullName}">Director Name</span>
             </p>
 
-            <p th:text="${movie.synopsis}" class="movie-synopsis">Synopsis</p>
+            <p data-th-text="${movie.synopsis}" class="movie-synopsis">Synopsis</p>
         </article>
     </section>
 </main>
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Login</div>
+        <form data-th-action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeLoginModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Access Denied Modal -->
+<div id="accessDeniedModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" style="color: #dc3545;">Access Denied</div>
+        <p>You must be logged in to access that page. Please log in to continue.</p>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeAccessDeniedModal()">Close</button>
+            <button type="button" class="btn btn-primary" onclick="switchToLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openLoginModal() {
+        document.getElementById('loginModal').style.display = 'block';
+    }
+
+    function closeLoginModal() {
+        document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function openAccessDeniedModal() {
+        document.getElementById('accessDeniedModal').style.display = 'block';
+    }
+
+    function closeAccessDeniedModal() {
+        document.getElementById('accessDeniedModal').style.display = 'none';
+    }
+
+    function switchToLogin() {
+        closeAccessDeniedModal();
+        openLoginModal();
+    }
+
+    // Close modal when clicking outside it
+    window.onclick = function(event) {
+        let loginModal = document.getElementById('loginModal');
+        let deniedModal = document.getElementById('accessDeniedModal');
+        if (event.target === loginModal) {
+            closeLoginModal();
+        }
+        if (event.target === deniedModal) {
+            closeAccessDeniedModal();
+        }
+    }
+
+    // Automatically open modal if parameters are present
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            openLoginModal();
+        }
+        if (urlParams.has('login_required')) {
+            openAccessDeniedModal();
+        }
+    }
+</script>
 </body>
 </html>

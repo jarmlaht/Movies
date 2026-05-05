@@ -1,11 +1,13 @@
 package com.example.movies.controller;
 
+import com.example.movies.config.SecurityConfig;
 import com.example.movies.dto.DirectorSummaryDTO;
 import com.example.movies.dto.MovieSummaryDTO;
 import com.example.movies.service.MovieService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(HomeController.class)
+@Import(SecurityConfig.class)
 class HomeControllerTest {
 
     @Autowired

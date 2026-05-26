@@ -20,27 +20,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/css/**", "/js/**").permitAll()
-                .requestMatchers("/movies/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .loginPage("/")
-                .defaultSuccessUrl("/", true)
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(oAuth2UserService)
-                )
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .permitAll()
-            )
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/?login_required=true"))
-            );
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/movies/**").authenticated()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/")
+                        .defaultSuccessUrl("/", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService)))
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/?login_required=true")));
 
         return http.build();
     }
 }
-

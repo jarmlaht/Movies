@@ -40,6 +40,12 @@ class MovieControllerTest {
     @MockitoBean
     private MovieService movieService;
 
+    @MockitoBean
+    private com.example.movies.service.CustomOAuth2UserService oAuth2UserService;
+
+    @MockitoBean
+    private org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
+
     static List<Movie> MOVIES = List.of(
             new Movie("1", "The Matrix", 1999, List.of("Action", "Sci-Fi"), 16, 9, 
                     List.of(new Actor("Keanu", "Reeves")), new Director("Lana", "Wachowski"), "A hacker discovers reality."),
@@ -119,5 +125,27 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.synopsis").value("Hope never dies."));
 
         verify(movieService).save(MOVIE);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldReturnMovieByIdWhenAuthenticated() throws Exception {
+        when(movieService.findById("3")).thenReturn(java.util.Optional.of(MOVIE));
+
+        mockMvc.perform(get("/movies/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value("3"))
+                .andExpect(jsonPath("$.name").value("The Shawshank Redemption"))
+                .andExpect(jsonPath("$.year").value(1994));
+
+        verify(movieService).findById("3");
+    }
+
+    @Test
+    void shouldRedirectToLoginWhenAnonymous() throws Exception {
+        mockMvc.perform(get("/movies/3"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?login_required=true"));
     }
 }

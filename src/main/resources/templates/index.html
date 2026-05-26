@@ -86,6 +86,13 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px var(--card-shadow-color);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         }
 
         .movie-title {
@@ -126,6 +133,161 @@
             border-radius: 8px;
             width: 300px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Premium Movie Details Modal */
+        .movie-details-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9fb 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 550px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .meta-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .age-limit-badge {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .rating-badge {
+            background: linear-gradient(45deg, #ffc107, #ff9800);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .genre-tag {
+            background-color: #e8f4fd;
+            color: #007bff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            border: 1px solid #d0e8fc;
+        }
+
+        .actor-tag {
+            background-color: #f1f3f5;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            border: 1px solid #e9ecef;
+        }
+
+        .modal-movie-title {
+            font-size: 1.8em;
+            color: #212529;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            padding-right: 20px;
+        }
+
+        .movie-meta-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #868e96;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+        }
+
+        .info-section p {
+            margin: 0;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .synopsis-section p {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .modal-header {
@@ -174,6 +336,8 @@
                 data-th-each="movie : ${movies}"
                 data-th-with="directorFullName=${movie.director.firstName + ' ' + movie.director.lastName}"
                 class="movie-card"
+                data-th-data-id="${movie.id}"
+                onclick="openMovieDetails(this.getAttribute('data-id'))"
         >
             <h2 data-th-text="${movie.name}" class="movie-title">Movie Name</h2>
 
@@ -205,6 +369,54 @@
     </div>
 </div>
 
+<!-- Movie Details Modal -->
+<div id="movieDetailsModal" class="modal">
+    <div class="modal-content movie-details-content">
+        <span class="close-btn" onclick="closeMovieDetailsModal()">&times;</span>
+        <div id="movieDetailsLoader" class="loader-container">
+            <div class="spinner"></div>
+        </div>
+        <div id="movieDetailsBody" style="display: none;">
+            <div class="movie-details-header">
+                <h2 id="modalMovieTitle" class="modal-movie-title">Movie Title</h2>
+                <div class="movie-meta-row">
+                    <span id="modalMovieYear" class="meta-badge">Year</span>
+                    <span id="modalMovieAgeLimit" class="meta-badge age-limit-badge">Age Limit</span>
+                    <span id="modalMovieRating" class="rating-badge">⭐ <span id="modalMovieRatingValue">0</span>/10</span>
+                </div>
+            </div>
+            <div class="movie-details-info">
+                <div class="info-section">
+                    <h3>Director</h3>
+                    <p id="modalMovieDirector">Director Name</p>
+                </div>
+                <div class="info-section">
+                    <h3>Genres</h3>
+                    <div id="modalMovieGenres" class="tag-container">
+                        <!-- Genre tags -->
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h3>Cast</h3>
+                    <div id="modalMovieActors" class="tag-container">
+                        <!-- Actor tags -->
+                    </div>
+                </div>
+                <div class="info-section synopsis-section">
+                    <h3>Synopsis</h3>
+                    <p id="modalMovieSynopsis">Synopsis text...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isAuthenticated = false;
+</script>
+<script sec:authorize="isAuthenticated()">
+    isAuthenticated = true;
+</script>
 <script>
     function openAccessDeniedModal() {
         document.getElementById('accessDeniedModal').style.display = 'block';
@@ -214,11 +426,90 @@
         document.getElementById('accessDeniedModal').style.display = 'none';
     }
 
+    function openMovieDetails(movieId) {
+        if (!isAuthenticated) {
+            openAccessDeniedModal();
+            return;
+        }
+
+        const modal = document.getElementById('movieDetailsModal');
+        const loader = document.getElementById('movieDetailsLoader');
+        const body = document.getElementById('movieDetailsBody');
+
+        // Show modal and loader, hide body content
+        modal.style.display = 'block';
+        loader.style.display = 'flex';
+        body.style.display = 'none';
+
+        fetch(`/movies/${movieId}`)
+            .then(response => {
+                if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+                    throw new Error('Not logged in or error loading movie');
+                }
+                return response.json();
+            })
+            .then(movie => {
+                // Populate elements
+                document.getElementById('modalMovieTitle').textContent = movie.name;
+                document.getElementById('modalMovieYear').textContent = movie.year;
+                document.getElementById('modalMovieAgeLimit').textContent = movie.ageLimit + '+';
+                document.getElementById('modalMovieRatingValue').textContent = movie.rating;
+                document.getElementById('modalMovieDirector').textContent = 
+                    movie.director.firstName + ' ' + movie.director.lastName;
+                document.getElementById('modalMovieSynopsis').textContent = movie.synopsis || 'No synopsis available.';
+
+                // Populate genres
+                const genresContainer = document.getElementById('modalMovieGenres');
+                genresContainer.innerHTML = '';
+                if (movie.genres && movie.genres.length > 0) {
+                    movie.genres.forEach(genre => {
+                        const tag = document.createElement('span');
+                        tag.className = 'genre-tag';
+                        tag.textContent = genre;
+                        genresContainer.appendChild(tag);
+                    });
+                } else {
+                    genresContainer.textContent = 'None';
+                }
+
+                // Populate cast
+                const actorsContainer = document.getElementById('modalMovieActors');
+                actorsContainer.innerHTML = '';
+                if (movie.actors && movie.actors.length > 0) {
+                    movie.actors.forEach(actor => {
+                        const tag = document.createElement('span');
+                        tag.className = 'actor-tag';
+                        tag.textContent = actor.firstName + ' ' + actor.lastName;
+                        actorsContainer.appendChild(tag);
+                    });
+                } else {
+                    actorsContainer.textContent = 'None';
+                }
+
+                // Hide loader, show body content
+                loader.style.display = 'none';
+                body.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching movie details:', error);
+                closeMovieDetailsModal();
+                openAccessDeniedModal();
+            });
+    }
+
+    function closeMovieDetailsModal() {
+        document.getElementById('movieDetailsModal').style.display = 'none';
+    }
+
     // Close modal when clicking outside it
     window.onclick = function(event) {
         let deniedModal = document.getElementById('accessDeniedModal');
+        let detailsModal = document.getElementById('movieDetailsModal');
         if (event.target === deniedModal) {
             closeAccessDeniedModal();
+        }
+        if (event.target === detailsModal) {
+            closeMovieDetailsModal();
         }
     }
 

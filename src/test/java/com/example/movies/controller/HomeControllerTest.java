@@ -27,6 +27,12 @@ class HomeControllerTest {
     @MockitoBean
     private MovieService movieService;
 
+    @MockitoBean
+    private com.example.movies.service.CustomOAuth2UserService oAuth2UserService;
+
+    @MockitoBean
+    private org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
+
     @Test
     void shouldReturnHomeViewWithMovies() throws Exception {
         List<MovieSummaryDTO> summaries = List.of(

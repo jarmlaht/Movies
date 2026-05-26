@@ -15,6 +15,13 @@ public class MoviesApplication {
 
 	@Bean
     CommandLineRunner logMongoDatabase(MongoTemplate mongoTemplate) {
-		return args -> System.out.println("Mongo database in use: " + mongoTemplate.getDb().getName());
+		return args -> {
+			try {
+				if (mongoTemplate != null && mongoTemplate.getDb() != null) {
+					System.out.println("Mongo database in use: " + mongoTemplate.getDb().getName());
+				}
+			} catch (Exception ignored) {
+			}
+		};
 	}
 }
